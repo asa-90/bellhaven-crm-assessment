@@ -1,0 +1,43 @@
+name: Bellhaven Daily Pipeline
+
+on:
+  schedule:
+    # Every day at 01:00 UTC
+    # = 08:00 WIB
+    - cron: "0 1 * * *"
+
+  workflow_dispatch:
+
+
+jobs:
+
+  daily-pipeline:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+
+        with:
+          python-version: "3.11"
+
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+
+      - name: Run daily pipeline
+        env:
+          CRM_BASE_URL: ${{ secrets.CRM_BASE_URL }}
+          CRM_API_TOKEN: ${{ secrets.CRM_API_TOKEN }}
+
+        run: |
+          python src/daily_pipeline.py
